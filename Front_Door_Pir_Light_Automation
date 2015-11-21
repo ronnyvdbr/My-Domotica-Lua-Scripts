@@ -1,0 +1,34 @@
+--[[
+%% autostart
+%% properties
+89 value
+56 value
+%% globals
+--]]
+
+-- Abstract: I have a front door motion sensor, light sensor, and a relais module to control my front door light.
+-- Below script serves purpose to monitor outdoor light intensity, and if low enough, switch on/off the light in case of motion detection.
+
+--
+-- 89 = Garden Lux
+-- 56 = Front Door Motion
+-- 59 = Front Door Light
+
+fibaro:debug('Tuin Lux          = ' .. fibaro:getValue(89, "value"))
+fibaro:debug('Front Door Motion = ' .. fibaro:getValue(56, "value"))
+fibaro:debug('Front Door Light  = ' .. fibaro:getValue(59, "value"))
+
+
+if ( tonumber(fibaro:getValue(89, "value")) <= 500  and  tonumber(fibaro:getValue(56, "value")) > 0) then
+	
+	if(tonumber(fibaro:getValue(59, "value")) == 0) then
+		fibaro:debug('Switch Front Door Light On')	
+    	fibaro:call(59, "turnOn");
+	end
+
+else
+	if(tonumber(fibaro:getValue(59, "value")) == 1) then
+    	fibaro:debug('Switch Front Door Light Off')
+		fibaro:call(59, "turnOff");
+	end
+end
