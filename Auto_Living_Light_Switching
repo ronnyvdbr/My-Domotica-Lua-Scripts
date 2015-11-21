@@ -30,7 +30,7 @@ if (tonumber(fibaro:getGlobalValue("AutoLivingLights")) == 1) then
             fibaro:debug('Switching Light B on ...')
             fibaro:call(18, "turnOn");
         else
-            fibaro:debug('Lights were already on, no action taken.')
+            fibaro:debug('Lights were already on, no action required.')
         end
     else
         fibaro:debug('No actions required.')
