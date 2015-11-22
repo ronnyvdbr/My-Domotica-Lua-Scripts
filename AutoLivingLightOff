@@ -1,0 +1,24 @@
+--[[
+%% autostart
+%% properties
+%% globals
+--]]
+
+fibaro:debug('Starting Sequence')
+
+while true do
+  
+  fibaro:debug('Living Lights are on for: ' .. tostring(os.difftime(os.time(),fibaro:getGlobal('LivingLightLastAct'))) .. ' Seconds.')
+  
+  if ((os.difftime(os.time(),fibaro:getGlobal('LivingLightLastAct'))) >= 600) then
+    fibaro:debug('Living Lights are on for more than 600 seconds, turning them off.')
+    fibaro:call(16,"turnOff");
+    fibaro:call(18,"turnOff");
+  end
+    
+fibaro:sleep(60000)
+
+
+
+
+end
