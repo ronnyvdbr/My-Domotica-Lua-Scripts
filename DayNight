@@ -1,0 +1,20 @@
+--[[
+%% autostart
+%% properties
+%% globals
+--]]
+
+while true do
+  fibaro:debug('Checking light intensity outside to determine day or night time.') 
+  if (tonumber(fibaro:getValue(89, "value")) <= 40) then
+  	fibaro:debug('Light intensity is equal or below 40 Lux, setting night time.')
+    fibaro:setGlobal('DayNight',0)
+  else
+  	fibaro:debug('Light intensity is above 40 Lux, setting day time.')
+    fibaro:setGlobal('DayNight',1)
+  end
+	
+fibaro:sleep(60000);
+
+end
+  
