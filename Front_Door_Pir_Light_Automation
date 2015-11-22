@@ -13,27 +13,27 @@
 -- 56 = Front Door Motion
 -- 59 = Front Door Light
 
-
-
 fibaro:debug('********** New Event Detected **********')
 fibaro:debug('Tuin Lux          = ' .. fibaro:getValue(89, "value"))
 fibaro:debug('Front Door Motion = ' .. fibaro:getValue(56, "value"))
 fibaro:debug('Front Door Light  = ' .. fibaro:getValue(59, "value"))
 
 fibaro:debug('********** Processing Event ************')
-if ( tonumber(fibaro:getValue(89, "value")) <= 40  and  tonumber(fibaro:getValue(56, "value")) > 0) then
-	fibaro:debug('Low light condition and motion event detected ...')
-	if(tonumber(fibaro:getValue(59, "value")) == 0) then
-		fibaro:debug('Switch Front Door Light On')	
-    		fibaro:call(59, "turnOn");
-	else
-		fibaro:debug('Light seems to be on already, taking no action.')
+if (tonumber(fibaro:getGlobalValue("DayNight")) == 0) then
+	if(tonumber(fibaro:getValue(56, "value")) > 0) then
+		fibaro:debug('Motion detected at front door ...')
+		if(tonumber(fibaro:getValue(59, "value")) == 0) then
+			fibaro:debug('Switch Front Door Light On.')	
+	 		fibaro:call(59, "turnOn");
+		else
+			fibaro:debug('Front door light is already on.')
+		end
 	end
 
 else
-	fibaro:debug('Motion event expired ...')
+	fibaro:debug('Its daytime, checking if light is off ...')
 	if(tonumber(fibaro:getValue(59, "value")) == 1) then
-    	fibaro:debug('Switch Front Door Light Off')
+    	fibaro:debug('Light appears to be on, switching this off.')
 		fibaro:call(59, "turnOff");
 	else 
 		fibaro:debug('Light appears to be off, taking no action.')
