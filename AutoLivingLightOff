@@ -4,13 +4,15 @@
 %% globals
 --]]
 
-fibaro:debug('Starting Sequence')
 
 while true do
+  fibaro:debug('********** Running New Cycle **********')
+  fibaro:debug('Living Lights runtime = ' .. tostring(os.difftime(os.time(),fibaro:getGlobal('LivingLightIOTime'))) .. ' Seconds.')
+  fibaro:debug('Light A           = ' .. fibaro:getValue(16, "value"))
+  fibaro:debug('Light B           = ' .. fibaro:getValue(18, "value"))  
   
-  fibaro:debug('Living Lights are on for: ' .. tostring(os.difftime(os.time(),fibaro:getGlobal('LivingLightLastAct'))) .. ' Seconds.')
   
-  if ((os.difftime(os.time(),fibaro:getGlobal('LivingLightLastAct'))) >= 600) then
+  if ((os.difftime(os.time(),fibaro:getGlobal('LivingLightIOTime'))) >= 600) then
     fibaro:debug('Living Lights are on for more than 600 seconds, turning them off.')
     fibaro:call(16,"turnOff");
     fibaro:call(18,"turnOff");
