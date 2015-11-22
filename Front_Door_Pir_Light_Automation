@@ -15,12 +15,12 @@
 
 
 
-fibaro:debug('********** New Event Detected **********'
+fibaro:debug('********** New Event Detected **********')
 fibaro:debug('Tuin Lux          = ' .. fibaro:getValue(89, "value"))
 fibaro:debug('Front Door Motion = ' .. fibaro:getValue(56, "value"))
 fibaro:debug('Front Door Light  = ' .. fibaro:getValue(59, "value"))
 
-fibaro:debug('********** Processing Event ************'
+fibaro:debug('********** Processing Event ************')
 if ( tonumber(fibaro:getValue(89, "value")) <= 40  and  tonumber(fibaro:getValue(56, "value")) > 0) then
 	fibaro:debug('Low light condition and motion event detected ...')
 	if(tonumber(fibaro:getValue(59, "value")) == 0) then
