@@ -1,0 +1,75 @@
+--[[
+%% properties
+%% globals
+--]]
+
+-- Demonstration of HTTP code that runs in a "Scene" or in a "Virtual Device"
+-- It test the availability of "Net.FHttp()" (for a VD) and alternatively
+-- selects "net.HTTPClient()" (for a Scene).
+
+deviceID = 1053
+
+-- This function processes the data returned from the http call
+-- It gets raw data from the HTTP client and decodes that
+-- into a table using the json.decode() function
+function process(responseJSON)
+  if #responseJSON == 0 then
+    fibaro:debug("Empty response from API. Check ID.")
+    return
+  end
+  jsonTbl= json.decode(responseJSON)
+  if jsonTbl==nil then
+    -- Oeps... Decode is empty...
+    if #responseJSON == 0 then
+      fibaro:debug("HC2 response is valid, but empty")
+      return
+    end
+    fibaro:debug("JSON decode failed for: "..responseJSON)
+    return
+  end
+  -- OK, we got decoded data... Now do something with it
+  fibaro:debug("Device ID: "..jsonTbl.id)
+  fibaro:debug("Device Name: "..jsonTbl.name)
+  if jsonTbl.visible then
+    fibaro:debug("Device is visible")
+  else
+    fibaro:debug("Device is HIDDEN")
+  end
+end
+
+-- http Error handling
+function httpError(err)
+  fibaro:Debug("HTTP call error: " .. err)
+end
+
+-- Startup of the code:
+-- Generate the URL we need to call
+-- For information on the API see:
+-- https://developer.fibaro.com
+api="/api/devices/"..deviceID
+
+-- Test availability of http library
+if Net ~= nil then
+  -- Code for Virtual Device
+  --
+  HC2 = Net.FHttp("127.0.0.1", 11111)
+  response ,status, errorCode = HC2:GET(api)
+  -- TODO check status, errorcode
+  process(response)
+else
+  --Code for Scene
+  -- the "Scene" implementation may seem difficult at first,
+  -- but that's because it uses a nested table... And functions as
+  -- parameters It actually makes sense
+  --
+  -- As far as I know, on 2015-06-02 this library is not fully documented,
+  -- none of the lua libraries I've found implement exactly this
+  -- set of parameters
+  HC2 = net.HTTPClient()
+  HC2:request(
+    "http://127.0.0.1:11111"..api,
+    { success = function(resp) process(resp.data) end,
+      error =  httpError,
+      options = {method = "GET" }
+    })
+end
