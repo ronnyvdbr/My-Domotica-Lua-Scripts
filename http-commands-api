@@ -1,0 +1,49 @@
+Just a function I want to share.
+ 
+This function is for using sending http-commands and using the received JSON-data
+	--
+	-- Function for sending API-command and receiving JSON-data
+        -- Copyleft by Lambik
+	--
+function apiExecute(_ip, _port, _apicommand, _debug)
+  if _ip == "" or _ip == nil then 
+    if _debug then fibaro:debug('<span style="color:red"> Funtion aborted: IP address missing </span>') end;
+    _fault = true;
+    end
+  if _port == "" or _port == nil then 
+    if _debug then fibaro:debug('<span style="color:red"> Funtion aborted: Port number missing </span>') end;
+    _fault = true;
+    end
+  if _apicommand == "" or _apicommand == nil then 
+    if _debug then fibaro:debug('<span style="color:red"> Funtion aborted: API instruction missing </span>') end;
+    _fault = true;
+    end
+  if not _fault then
+    if _debug then fibaro:debug('Sending API command: <span style="color:green"> http://'.._ip..':'.._port.._apicommand..'</span>') end;
+    _httpData = Net.FHttp(_ip, _port)
+    _response, _status, _errorCode = _httpData:GET(_apicommand)
+    if tonumber(_errorCode) == 0 and tonumber(_status) == 200 and _response ~= nil and _response ~= "" then
+      _jsonTable = json.decode(_response)
+      if _debug then fibaro:debug('<span style="color:green">Response received!</span>') end;
+      _fault = false
+      else
+      if _debug then fibaro:debug('<span style="color:red">Error! No response received!</span>') end;
+      _fault = true
+      end
+    return _jsonTable, _fault
+    end
+  end
+	--
+	-- End Functions
+	--
+Example of the function implementation:
+  jsonTable = {};
+  jsonTable, fault = apiExecute(selfIp, selfPort, httpApiCommandGetPath, debug);
+Returning variables:
+jsonTable = Content of the received JSON data (table)
+fault = Got error during the execution of the function (true or false)
+Sending variables:
+selfIp = IP-address to send instruction to (string, like "192.168.10.5")
+selfPort = Portnumber to use (number, like 80)
+httpApiCommandGetPath = API/http-command for getting the data (string, like "/webapi/query.cgi?.......")
+debug = Show debug information for debugging reasons (true or false)
