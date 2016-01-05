@@ -5,7 +5,7 @@
 --]]
 
 while true do
-  if (tonumber(fibaro:getGlobalValue("AutoGarageLights")) == 1) then
+  if (tonumber(fibaro:getGlobalValue("AutoLivingLights")) == 1) then
     fibaro:debug('********** Running New Cycle **********')
     fibaro:debug('Living Lights runtime = ' .. tostring(os.difftime(os.time(),fibaro:getGlobal('LivingLightIOTime'))) .. ' Seconds.')
     fibaro:debug('Light A           = ' .. fibaro:getValue(16, "value"))
