@@ -1,0 +1,20 @@
+--[[
+%% autostart
+%% properties
+%% globals
+--]]
+
+while true do
+  if (tonumber(fibaro:getGlobalValue("AutoGarageLights")) == 1) then
+    fibaro:debug('********** Running New Cycle **********')
+    fibaro:debug('Garage Lights runtime = ' .. tostring(os.difftime(os.time(),fibaro:getGlobal('GarageLightIOTime'))) .. ' Seconds.')
+    fibaro:debug('Garage Light          = ' .. fibaro:getValue(136, "value"))
+
+    if ((os.difftime(os.time(),fibaro:getGlobal('GarageLightIOTime'))) >= 120) then
+      fibaro:debug('Garage Lights are on for more than 120 seconds, turning them off.')
+      fibaro:call(136,"turnOff");
+    end
+  end
+    
+fibaro:sleep(60000)
+end
