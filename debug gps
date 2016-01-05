@@ -1,0 +1,10 @@
+--[[
+%% properties
+7 Location
+%% globals
+--]]
+
+local startSource = fibaro:getSourceTrigger();
+
+fibaro:debug("GPS coordinate: " .. (fibaro:getValue(7, "Location")))
+fibaro:debug("GPS distance: " .. (fibaro:calculateDistance(fibaro:getValue(7, "Location"), "51.09865350636862;4.127886146306992")))
