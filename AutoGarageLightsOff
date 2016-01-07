@@ -11,8 +11,12 @@ while true do
     fibaro:debug('Garage Light          = ' .. fibaro:getValue(136, "value"))
 
     if ((os.difftime(os.time(),fibaro:getGlobal('GarageLightIOTime'))) >= 120) then
-      fibaro:debug('Garage Lights are on for more than 120 seconds, turning them off.')
-      fibaro:call(136,"turnOff");
+      	if (fibaro:getValue(136, "value") == 1) then
+    	 	 fibaro:debug('Garage Lights are on for more than 120 seconds, turning them off.')
+     		 fibaro:call(136,"turnOff");
+		else
+        	fibaro:debug('Garage lights are off, no action required.')        	
+        end
     end
   end
     
