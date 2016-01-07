@@ -4,20 +4,30 @@
 %% globals
 --]]
 
+-- 16 - Licht bijzettafel
+-- 18 - Licht staanlamp tv
+-- 92 - Licht bureau maite
+
 while true do
   if (tonumber(fibaro:getGlobalValue("AutoLivingLights")) == 1) then
     fibaro:debug('********** Running New Cycle **********')
     fibaro:debug('Living Lights runtime = ' .. tostring(os.difftime(os.time(),fibaro:getGlobal('LivingLightIOTime'))) .. ' Seconds.')
-    fibaro:debug('Light A           = ' .. fibaro:getValue(16, "value"))
-    fibaro:debug('Light B           = ' .. fibaro:getValue(18, "value"))  
-
-    if ((os.difftime(os.time(),fibaro:getGlobal('LivingLightIOTime'))) >= 600) then
-      fibaro:debug('Living Lights are on for more than 600 seconds, turning them off.')
-      fibaro:call(16,"turnOff");
-      fibaro:call(18,"turnOff");
+    fibaro:debug('Licht bijzettafel  = ' .. fibaro:getValue(16, "value"))
+    fibaro:debug('Licht staanlamp tv = ' .. fibaro:getValue(18, "value"))  
+    fibaro:debug('Licht bureau maite = ' .. fibaro:getValue(92, "value"))
+    
+    if ((os.difftime(os.time(),fibaro:getGlobal('LivingLightIOTime'))) >= 900) then
+      	if (fibaro:getValue(16, "value") == 1 or fibaro:getValue(18, "value") == 1 or fibaro:getValue(92, "value") == 1) then
+    	 	 fibaro:debug('Living Lights are on for more than 900 seconds, turning them off.')
+     		 fibaro:call(16,"turnOff");
+     		 fibaro:call(18,"turnOff");
+     		 fibaro:call(92,"turnOff");
+		else
+        	fibaro:debug('Living lights are off, no action required.')        	
+        end
+    else
+      	fibaro:debug('No action required.')
     end
-
   end    
-
 fibaro:sleep(60000)
 end
