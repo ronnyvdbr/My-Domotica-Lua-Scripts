@@ -17,7 +17,7 @@ while true do
     fibaro:debug('Licht bureau maite = ' .. fibaro:getValue(92, "value"))
     
     if ((os.difftime(os.time(),fibaro:getGlobal('LivingLightIOTime'))) >= 900) then
-      	if (fibaro:getValue(16, "value") == 1 or fibaro:getValue(18, "value") == 1 or fibaro:getValue(92, "value") == 1) then
+      	if (tonumber(fibaro:getValue(16, "value")) == 1 or tonumber(fibaro:getValue(18, "value")) == 1 or tonumber(fibaro:getValue(92, "value")) == 1) then
     	 	 fibaro:debug('Living Lights are on for more than 900 seconds, turning them off.')
      		 fibaro:call(16,"turnOff");
      		 fibaro:call(18,"turnOff");
