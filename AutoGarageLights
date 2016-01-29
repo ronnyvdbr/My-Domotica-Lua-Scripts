@@ -33,8 +33,14 @@ if (tonumber(fibaro:getGlobalValue("AutoGarageLights")) == 1) then
 		fibaro:debug('******** Taking below actions *******')
         fibaro:debug('Manual switch on detected, setting timer.')
 		fibaro:setGlobal('GarageLightIOTime', os.time())
-	else 
-		-- no action required.
+	elseif (tonumber(fibaro:getValue(141, "value")) == 1) and (tonumber(fibaro:getValue(136, "value")) == 1) and (trigger['deviceID'] ~= 136) then
+		fibaro:debug('********** Event triggered **********')
+		fibaro:debug('Lights Automation  = ' .. tonumber(fibaro:getGlobalValue("AutoGarageLights")))
+		fibaro:debug('Garage Motion      = ' .. fibaro:getValue(141, "value"))
+		fibaro:debug('Garage Light       = ' .. fibaro:getValue(136, "value"))
+		fibaro:debug('******** Taking below actions *******')
+	        fibaro:debug('Lights are already on and motion is detected, setting timer.')
+		fibaro:setGlobal('GarageLightIOTime', os.time())
 	end
 else
   	fibaro:debug('Event detected but not processed because lights automation is disabled.')
