@@ -38,4 +38,6 @@ if (tonumber(fibaro:getGlobalValue("AutoLivingLights")) == 1) then
     else
         fibaro:debug('No actions required.')
     end
+else
+    fibaro:debug('No actions required, AutoLivingLights is set to false.')
 end
