@@ -1,0 +1,57 @@
+--[[
+%% autostart
+%% properties
+89 value
+150 value
+%% globals
+AutoDrivewayLights
+--]]
+
+-- Abstract: I have a driveway motion sensor, light sensor, and a relais module to control my driveway lights.
+-- Below script serves purpose to monitor outdoor light intensity, and if low enough, switch on/off the light in case of motion detection.
+
+-- 89 = Garden Lux
+-- 150 = Driveway Motion
+-- 153 = Driveway Lights
+
+fibaro:debug('********** Event triggered **********')
+fibaro:debug('Lights Automation  = ' .. tonumber(fibaro:getGlobalValue("AutoDrivewayLights")))
+fibaro:debug('Day(1) or Night(0) = ' .. tonumber(fibaro:getGlobalValue("DayNight")))
+fibaro:debug('Tuin Lux           = ' .. fibaro:getValue(89, "value"))
+fibaro:debug('Driveway Motion    = ' .. fibaro:getValue(150, "value"))
+fibaro:debug('Driveway Lights    = ' .. fibaro:getValue(153, "value"))
+
+fibaro:debug('********** Processing Event ************')
+if (tonumber(fibaro:getGlobalValue("AutoDrivewayLights")) == 1) then
+	if (tonumber(fibaro:getGlobalValue("DayNight")) == 0) then
+		if(tonumber(fibaro:getValue(150, "value")) > 0) then
+			fibaro:debug('Motion detected on driveway ...')
+			if(tonumber(fibaro:getValue(153, "value")) == 0) then
+				fibaro:debug('Switch driveway lights On.')	
+				fibaro:call(153, "turnOn");
+				fibaro:setGlobal('DrivewayLightIOTim', os.time())      
+			else
+				fibaro:debug('Driveway lights are already on.')
+			end
+		else 
+			if(tonumber(fibaro:getValue(153, "value")) > 0) then
+				 fibaro:debug('Motion expired, switching lights off.')
+				 fibaro:call(153, "turnOff")
+			else
+				 fibaro:debug('Motion expired, light is off')
+			end
+		end
+
+	else
+		fibaro:debug('Its daytime, checking if light is off ...')
+		if(tonumber(fibaro:getValue(153, "value")) > 0) then
+			fibaro:debug('Light appears to be on, switching this off.')
+			fibaro:call(153, "turnOff");
+		else 
+			fibaro:debug('Light appears to be off.')
+		end
+		
+	end
+else
+    fibaro:debug('No actions required, AutoDrivewayLights is set to false.')
+end
