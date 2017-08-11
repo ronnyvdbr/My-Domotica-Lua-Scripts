@@ -1,0 +1,157 @@
+-- IP Smartphone Presence Check V1.2 - check with ping on port sonos
+-- IP Smartphone Presence Check V2.0 - sonos not reliable anymore, using arp table
+-- IP Smartphone Presence Check V2.1 - removed Lock_Away
+-- Copyright © 2015 Sébastien Jauquet.
+-- http://www.domotique-fibaro.fr/index.php/topic/2613-detection-de-pr%C3%A9sence/
+--Using code from:
+-- Ping v 1.0.1 [05-2013] Copyright © 2013 Jean-christophe Vermandé
+-- http://www.domotique-fibaro.fr/index.php/topic/109-ping-dun-%C3%A9quipement-r%C3%A9seau/page-2
+-- mac adress check: Roman
+-- http://forum.fibaro.com/index.php?/topic/21062-idea-how-to-monitor-people-at-home/#entry86009
+
+-- local variable_globale_phone = "Phone_XXX_Present";
+-- local current_icon_absent = 1035 -- homme
+-- local current_icon_present = 1034 -- homme
+local variable_global_phone = "HenkAanwezig";
+local current_icon_absent = 7 -- man
+local current_icon_present = 6 -- man
+
+local maxRetry_Process = 20;
+local scheduler_value = 2; -- (minutes) scheduled time of this process (must match the mainloop scheduled time)
+local check_wait = 5; -- (seconds) to wait between each poll device
+local debug = true
+-- local login = "admin";
+-- local pass = "not needed with port 11111";
+
+local selfId=fibaro:getSelfId();
+local time = tonumber(os.time());
+local maxtime = (scheduler_value*60) - (check_wait+1);
+local mac = fibaro:get(selfId, 'IPAddress');
+local HC2 = Net.FHttp("127.0.0.1", 11111);
+-- HC2:setBasicAuthentication(login, pass);
+
+function Debug(color, message)
+if debug then 
+	if color and color ~= "" then
+		fibaro:debug('<span style="color:'..color..';">'..message..'</span>');
+	else
+		fibaro:debug(message);
+	end
+end
+end
+
+function SecondsToClock(sSeconds)
+  local nSeconds = tonumber(sSeconds)
+  if nSeconds == 0 then
+	return "00:00:00";
+  else
+	nHours = string.format("%02.f", math.floor(nSeconds/3600));
+	nMins = string.format("%02.f", math.floor(nSeconds/60 - (nHours*60)));
+	nSecs = string.format("%02.f", math.floor(nSeconds - nHours*3600 - nMins *60));
+	return nHours..":"..nMins..":"..nSecs
+  end
+end
+
+local function _ping(retry)
+retry = retry or 0;
+
+-- notify state
+  local elapsed = os.difftime(os.time(), tonumber(time));
+  local msg = "Loop #".. retry .." sinds "..SecondsToClock(elapsed);
+  fibaro:log(msg);  
+
+  if elapsed > maxtime then
+  return false; 
+  end
+
+--open the socket
+  local tcpSocket = Net.FTcpSocket(_deviceIp, _devicePort);
+    fibaro:debug(_deviceIp .. " " .. _devicePort)
+  --set the read timeout
+  tcpSocket:setReadTimeout(250);
+  --send packet
+  local bytes, errorCode = tcpSocket:write("test");
+  fibaro:debug(errorCode)
+ 
+  --check for error  	
+  if errorCode == 0 then
+    return true;
+  else
+	if retry < maxRetry_Process then
+	--fibaro:log("Retry process, please wait...");
+	fibaro:sleep(1*750);
+	return _ping(retry + 1);
+	end
+	return false;
+  end
+end
+
+local function FindMac(retry)
+retry = retry or 0;
+local foundUser = false;
+-- notify state
+	local elapsed = os.difftime(os.time(), tonumber(time));
+	local msg = "Loop #".. retry .." since "..SecondsToClock(elapsed);
+
+-- check for no more than maxtime seconds
+  if elapsed > maxtime then
+	return false; 
+  end
+
+	fibaro:log(msg);  
+	Debug("yellow",msg)
+
+	local response, status, errorCode = HC2.POST(HC2, "/api/networkDiscovery/arp", "{}");
+	local jsonTable = json.decode(response) 
+	--fibaro:debug("errorcode:"..errorCode.."status: "..status)
+	if (tonumber(errorCode)==0 and tonumber(status)==200) then  
+	  for i, name in ipairs(jsonTable) do
+		if foundUser == false then
+		--Debug("grey",i.." found mac:"..name['mac'])
+		  if(name['mac'] == mac) then
+			foundUser = true;
+			Debug("green","Telefoon "..name['mac'].." gedetecteerd na "..elapsed.." s");
+		  end
+		end
+	end
+	else Debug("red","error json decode")
+	end
+
+  --check for error
+  if foundUser == true then
+	return true;
+  else
+	if retry < maxRetry_Process then
+		--fibaro:log("Retry process, please wait...");
+		fibaro:sleep(check_wait*1000);
+		return FindMac(retry + 1);
+	end
+  return false;
+  end
+end
+
+fibaro:log("Starting process");
+Debug("yellow","Searching for IP Address: "..mac)
+--ping device, secure with pcall to catch errors.
+local f, result = pcall(_ping);
+--local f, result = pcall(FindMac);
+
+
+if (f) then
+  if (result == true) then
+	fibaro:log("Telefoon gedetecteerd.");
+	fibaro:setGlobal(variable_global_phone,"1")
+	Debug("green","Global Var: "..variable_global_phone.." Set to 1");
+	fibaro:call(selfId, "setProperty", "currentIcon", current_icon_present)
+	-- évolution future possible: stocker la date et l'heure de la dernière présence détectée
+	-- fibaro:setGlobal("Present_Phones",os.time()) 
+  else
+	fibaro:log("Telefoon niet gedetecteerd!");
+	fibaro:setGlobal(variable_global_phone,"0")
+	Debug("red","Telefoon "..mac.." niet gevonden");
+	Debug("red","Global Var: "..variable_global_phone.." Set to 0");
+	fibaro:call(selfId, "setProperty", "currentIcon", current_icon_absent)
+  end
+else
+  fibaro:log("Error: " .. tostring(f));
+end
