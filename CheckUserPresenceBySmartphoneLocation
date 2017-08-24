@@ -1,0 +1,38 @@
+--[[
+%% properties
+6 LocationTime
+%% events
+%% globals
+--]]
+
+local trigger = fibaro:getSourceTrigger()
+
+-- function to round numbers
+function round(num, numDecimalPlaces)
+  local mult = 10^(numDecimalPlaces or 0)
+  return math.floor(num * mult + 0.5) / mult
+end
+
+-- define our home location
+local homeLocation = "51.098648;4.127881"
+
+-- define our distance result
+local userDistance
+
+-- Get the location and locationtime of the user with ID 6 (ronny)
+local userLocation = fibaro:getValue(6, 'Location')
+local locationTime = fibaro:getValue(6, 'LocationTime')
+
+-- calculate the distance between the user and the home location
+userDistance = fibaro:calculateDistance(userLocation, homeLocation)
+
+-- output our distance to the console window
+fibaro:debug('Location time = ' .. locationTime .. ' -- user distance from home = ' .. round(userDistance,0) .. 'm.')
+
+if round(userDistance,0)<30 then
+  fibaro:debug('User is present in home perimeter.')
+  fibaro:call(167, "sendDefinedPushNotification", "168");
+else
+  fibaro:debug('User is away from home.')
+
+end
