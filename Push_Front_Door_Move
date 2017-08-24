@@ -1,0 +1,11 @@
+--[[
+%% properties
+56 value
+%% events
+%% globals
+--]]
+
+local trigger = fibaro:getSourceTrigger()
+
+fibaro:call(167, "sendDefinedPushNotification", "163");
+fibaro:debug('run')
