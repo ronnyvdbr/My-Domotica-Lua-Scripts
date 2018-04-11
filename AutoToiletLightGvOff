@@ -1,0 +1,24 @@
+--[[
+%% autostart
+%% properties
+%% globals
+--]]
+
+while true do
+  if (tonumber(fibaro:getGlobalValue("AutoWcLightGv")) == 1) then
+    fibaro:debug('********** Running New Cycle **********')
+    fibaro:debug('WcLightGv runtime = ' .. tostring(os.difftime(os.time(),fibaro:getGlobal('GarageLightIOTime'))) .. ' Seconds.')
+    fibaro:debug('WcLightGv status          = ' .. fibaro:getValue(182, "on"))
+
+    if ((os.difftime(os.time(),fibaro:getGlobal('WcLightGvIOTime'))) >= 60) then
+      	if (tonumber(fibaro:getValue(182, "on")) == 1) then
+    	 	 fibaro:debug('WcLightGv Lights are on for more than 60 seconds, turning them off.')
+     		 fibaro:call(182,"turnOff");
+		else
+        	fibaro:debug('WcLightGv lights are off, no action required.')        	
+        end
+    end
+  end
+    
+fibaro:sleep(60000)
+end
