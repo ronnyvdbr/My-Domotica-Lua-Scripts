@@ -1,0 +1,57 @@
+--[[
+%% autostart
+%% properties
+89 value
+198 value
+%% globals
+AutoDrivewayLights
+--]]
+
+-- Abstract: I have a toilet motion sensor, light sensor, and a philips hue lamp.
+-- Below script serves purpose to monitor outdoor light intensity, and if low enough, switch on/off the light in case of motion detection.
+
+-- 89 = Garden Lux
+-- 198 = Toilet Ground Floor Motion 198
+-- 182 = Toilet Ground Floor Light 182
+
+fibaro:debug('********** Event triggered **********')
+fibaro:debug('Lights Automation  = ' .. tonumber(fibaro:getGlobalValue("AutoWcLightGv")))
+fibaro:debug('Day(1) or Night(0) = ' .. tonumber(fibaro:getGlobalValue("DayNight")))
+fibaro:debug('Tuin Lux           = ' .. fibaro:getValue(89, "value"))
+fibaro:debug('Toilet Motion      = ' .. fibaro:getValue(198, "value"))
+fibaro:debug('Toilet Light       = ' .. fibaro:getValue(182, "on"))
+
+fibaro:debug('********** Processing Event ************')
+if (tonumber(fibaro:getGlobalValue("AutoWcLightGv")) == 1) then
+	if (tonumber(fibaro:getGlobalValue("DayNight")) == 0) then
+		if(tonumber(fibaro:getValue(198, "value")) > 0) then
+			fibaro:debug('Motion detected in toilet room ...')
+			if(tonumber(fibaro:getValue(182, "on")) == 0) then
+				fibaro:debug('Switch toilet light On.')	
+				fibaro:call(182, "turnOn");
+				fibaro:setGlobal('WcLightGvIOTime', os.time())      
+			else
+				fibaro:debug('Toilet light is already on.')
+			end
+		else 
+			if(tonumber(fibaro:getValue(182, "on")) > 0) then
+				 fibaro:debug('Motion expired, switching toilet light off.')
+				 fibaro:call(182, "turnOff")
+			else
+				 fibaro:debug('Motion expired, toilet light is off, no action required')
+			end
+		end
+
+	else
+		fibaro:debug('Its daytime, checking if light is off ...')
+		if(tonumber(fibaro:getValue(182, "on")) > 0) then
+			fibaro:debug('toilet light appears to be on, switching it off.')
+			fibaro:call(182, "turnOff");
+		else 
+			fibaro:debug('Toilet light appears to be off, no action required')
+		end
+		
+	end
+else
+    fibaro:debug('No actions required, AutoWcLightGv is set to false.')
+end
